@@ -1,8 +1,14 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import logo from "./logo.svg";
+import "./App.css";
 
 const App: React.FC = () => {
+  React.useEffect(() => {
+    const url = `http://en.wikipedia.org/w/api.php?action=parse&page=2019–20_Premier_League&prop=text&section=6&format=json&origin=*`;
+    fetch(url)
+      .then(res => res.json())
+      .then(res => console.log(res.parse.text));
+  }, []);
   return (
     <div className="App">
       <header className="App-header">
@@ -16,11 +22,11 @@ const App: React.FC = () => {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Learn React
+          Suhhhhhhhh
         </a>
       </header>
     </div>
   );
-}
+};
 
 export default App;

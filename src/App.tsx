@@ -5,7 +5,9 @@ import "./App.css";
 const App: React.FC = () => {
   React.useEffect(() => {
     const url = `http://en.wikipedia.org/w/api.php?action=parse&page=2019–20_Premier_League&prop=text&section=6&format=json&origin=*`;
-    fetch(url)
+    fetch(url, {
+      mode: "cors" // no-cors, *cors, same-origin
+    })
       .then(res => res.json())
       .then(res => console.log(res.parse.text));
   }, []);

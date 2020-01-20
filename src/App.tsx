@@ -4,7 +4,7 @@ import "./App.css";
 
 const App: React.FC = () => {
   React.useEffect(() => {
-    const url = `http://en.wikipedia.org/w/api.php?action=parse&page=2019–20_Premier_League&prop=text&section=6&format=json&origin=*`;
+    const url = `https://en.wikipedia.org/w/api.php?action=parse&page=2019–20_Premier_League&prop=text&section=6&format=json&origin=*`;
     fetch(url, {
       mode: "cors" // no-cors, *cors, same-origin
     })

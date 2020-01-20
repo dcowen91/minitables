@@ -1,6 +1,16 @@
 import React from "react";
-import logo from "./logo.svg";
 import "./App.css";
+import Button from "@material-ui/core/Button";
+import {
+  CssBaseline,
+  TableRow,
+  TableContainer,
+  Table,
+  TableHead,
+  TableCell,
+  makeStyles,
+  Paper
+} from "@material-ui/core";
 
 interface ITeam {
   teamId: number;
@@ -13,6 +23,14 @@ interface IMatch {
   awayScore: number;
   homeId: number;
   awayId: number;
+}
+
+interface ITableResult {
+  wins: number;
+  draws: number;
+  losses: number;
+  GD: number;
+  points: number;
 }
 
 function transformMatchResult(
@@ -42,7 +60,33 @@ function transformMatchResult(
   };
 }
 
+/**
+ * TODO add filter
+ */
+function calculateResults(team: ITeam, matches: IMatch[]): ITableResult {
+  const teamMatches = matches.filter(
+    match => match.awayId === team.teamId || match.homeId === team.teamId
+  );
+
+  let wins, draws, losses, GD, points;
+  wins = draws = losses = GD = points = 0;
+
+  teamMatches.forEach(match => {
+    // TODO parse result
+  });
+
+  return { wins, draws, losses, GD, points };
+}
+
+const useStyles = makeStyles({
+  table: {
+    maxWidth: 800,
+    margin: "0 auto"
+  }
+});
+
 const App: React.FC = () => {
+  const classes = useStyles();
   React.useEffect(() => {
     const url = `https://en.wikipedia.org/w/api.php?action=parse&page=2019–20_Premier_League&prop=text&section=6&format=json&origin=*`;
     fetch(url, { mode: "cors" })
@@ -105,22 +149,39 @@ const App: React.FC = () => {
       });
   }, []);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Suhhhhhhhh
-        </a>
-      </header>
-    </div>
+    <>
+      <CssBaseline />
+      <div className="App">
+        <header className="App-header">
+          <TableContainer className={classes.table} component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Team</TableCell>
+                  <TableCell>W</TableCell>
+                  <TableCell>D</TableCell>
+                  <TableCell>L</TableCell>
+                  <TableCell>GD</TableCell>
+                  <TableCell>Points</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableRow>
+                <TableCell>Arsenal</TableCell>
+                <TableCell>1</TableCell>
+                <TableCell>10</TableCell>
+                <TableCell>2</TableCell>
+                <TableCell>-10</TableCell>
+                <TableCell>3</TableCell>
+              </TableRow>
+            </Table>
+          </TableContainer>
+          <Button variant="contained" color="primary">
+            Primary
+          </Button>
+          <Button color="primary">Primary</Button>
+        </header>
+      </div>
+    </>
   );
 };
 

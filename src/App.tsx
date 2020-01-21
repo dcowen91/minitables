@@ -12,6 +12,7 @@ import {
   Paper
 } from "@material-ui/core";
 
+// TODO break up this monolithic class
 interface ITeam {
   teamId: number;
   teamName: string;
@@ -61,18 +62,32 @@ function transformMatchResult(
 }
 
 /**
- * TODO add filter
+ * TODO add filtering logic
  */
 function calculateResults(team: ITeam, matches: IMatch[]): ITableResult {
   const teamMatches = matches.filter(
     match => match.awayId === team.teamId || match.homeId === team.teamId
   );
 
-  let wins, draws, losses, GD, points;
+  let wins: number, draws: number, losses: number, GD: number, points: number;
   wins = draws = losses = GD = points = 0;
 
   teamMatches.forEach(match => {
-    // TODO parse result
+    const isHome = match.homeId === team.teamId;
+    const teamPoints = isHome ? match.homeScore : match.awayScore;
+    const oppPoints = isHome ? match.awayScore : match.homeScore;
+
+    GD += (teamPoints - oppPoints);
+
+    if (teamPoints > oppPoints) {
+      wins++;
+    }  else if (teamPoints === oppPoints) {
+      draws ++;
+    } else {
+      losses++;
+    }
+    points = (wins * 3) + draws; 
+
   });
 
   return { wins, draws, losses, GD, points };
@@ -87,6 +102,10 @@ const useStyles = makeStyles({
 
 const App: React.FC = () => {
   const classes = useStyles();
+  // TODO change this so that results can be sorted
+  const [teams, setTeams] = React.useState<ITeam[]>([]);
+  const [matches, setmatches] = React.useState<IMatch[]>([]);
+
   React.useEffect(() => {
     const url = `https://en.wikipedia.org/w/api.php?action=parse&page=2019–20_Premier_League&prop=text&section=6&format=json&origin=*`;
     fetch(url, { mode: "cors" })
@@ -145,7 +164,8 @@ const App: React.FC = () => {
           }
         });
 
-        console.log(matches);
+        setTeams(teams);
+        setmatches(matches);
       });
   }, []);
   return (
@@ -165,14 +185,18 @@ const App: React.FC = () => {
                   <TableCell>Points</TableCell>
                 </TableRow>
               </TableHead>
-              <TableRow>
-                <TableCell>Arsenal</TableCell>
-                <TableCell>1</TableCell>
-                <TableCell>10</TableCell>
-                <TableCell>2</TableCell>
-                <TableCell>-10</TableCell>
-                <TableCell>3</TableCell>
+              {teams.map(team => {
+                const results = calculateResults(team, matches);
+                return  <TableRow>
+                <TableCell>{team.teamName}</TableCell>
+                <TableCell>{results.wins}</TableCell>
+                <TableCell>{results.draws}</TableCell>
+                <TableCell>{results.losses}</TableCell>
+                <TableCell>{results.GD}</TableCell>
+                <TableCell>{results.points}</TableCell>
               </TableRow>
+              })}
+             
             </Table>
           </TableContainer>
           <Button variant="contained" color="primary">

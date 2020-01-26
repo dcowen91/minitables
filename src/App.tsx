@@ -27,6 +27,7 @@ interface IMatch {
 }
 
 interface ITableResult {
+  teamName: string;
   wins: number;
   draws: number;
   losses: number;
@@ -77,32 +78,30 @@ function calculateResults(team: ITeam, matches: IMatch[]): ITableResult {
     const teamPoints = isHome ? match.homeScore : match.awayScore;
     const oppPoints = isHome ? match.awayScore : match.homeScore;
 
-    GD += (teamPoints - oppPoints);
+    GD += teamPoints - oppPoints;
 
     if (teamPoints > oppPoints) {
       wins++;
-    }  else if (teamPoints === oppPoints) {
-      draws ++;
+    } else if (teamPoints === oppPoints) {
+      draws++;
     } else {
       losses++;
     }
-    points = (wins * 3) + draws; 
-
+    points = wins * 3 + draws;
   });
 
-  return { wins, draws, losses, GD, points };
+  return { teamName: team.teamName, wins, draws, losses, GD, points };
 }
 
 const useStyles = makeStyles({
   table: {
     maxWidth: 800,
-    margin: "0 auto"
+    margin: "10px auto"
   }
 });
 
 const App: React.FC = () => {
   const classes = useStyles();
-  // TODO change this so that results can be sorted
   const [teams, setTeams] = React.useState<ITeam[]>([]);
   const [matches, setmatches] = React.useState<IMatch[]>([]);
 
@@ -174,7 +173,7 @@ const App: React.FC = () => {
       <div className="App">
         <header className="App-header">
           <TableContainer className={classes.table} component={Paper}>
-            <Table>
+            <Table size="small">
               <TableHead>
                 <TableRow>
                   <TableCell>Team</TableCell>
@@ -185,18 +184,21 @@ const App: React.FC = () => {
                   <TableCell>Points</TableCell>
                 </TableRow>
               </TableHead>
-              {teams.map(team => {
-                const results = calculateResults(team, matches);
-                return  <TableRow>
-                <TableCell>{team.teamName}</TableCell>
-                <TableCell>{results.wins}</TableCell>
-                <TableCell>{results.draws}</TableCell>
-                <TableCell>{results.losses}</TableCell>
-                <TableCell>{results.GD}</TableCell>
-                <TableCell>{results.points}</TableCell>
-              </TableRow>
-              })}
-             
+              {teams
+                .map(team => calculateResults(team, matches))
+                .sort((first, second) => second.points - first.points)
+                .map(result => {
+                  return (
+                    <TableRow>
+                      <TableCell>{result.teamName}</TableCell>
+                      <TableCell>{result.wins}</TableCell>
+                      <TableCell>{result.draws}</TableCell>
+                      <TableCell>{result.losses}</TableCell>
+                      <TableCell>{result.GD}</TableCell>
+                      <TableCell>{result.points}</TableCell>
+                    </TableRow>
+                  );
+                })}
             </Table>
           </TableContainer>
           <Button variant="contained" color="primary">

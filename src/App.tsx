@@ -102,7 +102,7 @@ const useStyles = makeStyles({
     margin: "10px auto"
   },
   chipSection: {
-    maxWidth: 350,
+    maxWidth: 270,
     display: "flex",
     flexWrap: "wrap"
   },
@@ -189,6 +189,9 @@ const App: React.FC = () => {
       secondary: amber
     }
   });
+
+  // TODO add click functionality for the chiops
+  // TODO add padding and make all chips the same size
   return (
     <ThemeProvider theme={theme}>
       <div className={classes.app}>

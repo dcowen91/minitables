@@ -1,5 +1,4 @@
 import React from "react";
-import "./App.css";
 import Button from "@material-ui/core/Button";
 import {
   CssBaseline,
@@ -10,14 +9,11 @@ import {
   TableCell,
   makeStyles,
   Paper,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Chip,
   ThemeProvider,
   createMuiTheme
 } from "@material-ui/core";
+import { deepPurple, amber } from "@material-ui/core/colors";
 
 // TODO break up this monolithic class
 interface ITeam {
@@ -188,7 +184,9 @@ const App: React.FC = () => {
   }, []);
   const theme = createMuiTheme({
     palette: {
-      type: "dark"
+      type: "dark",
+      primary: deepPurple,
+      secondary: amber
     }
   });
   return (

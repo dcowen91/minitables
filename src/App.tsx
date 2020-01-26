@@ -9,7 +9,14 @@ import {
   TableHead,
   TableCell,
   makeStyles,
-  Paper
+  Paper,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Chip,
+  ThemeProvider,
+  createMuiTheme
 } from "@material-ui/core";
 
 // TODO break up this monolithic class
@@ -97,6 +104,18 @@ const useStyles = makeStyles({
   table: {
     maxWidth: 800,
     margin: "10px auto"
+  },
+  chipSection: {
+    maxWidth: 350,
+    display: "flex",
+    flexWrap: "wrap"
+  },
+  app: {
+    minHeight: "100vh",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center"
   }
 });
 
@@ -167,47 +186,63 @@ const App: React.FC = () => {
         setmatches(matches);
       });
   }, []);
+  const theme = createMuiTheme({
+    palette: {
+      type: "dark"
+    }
+  });
   return (
-    <>
-      <CssBaseline />
-      <div className="App">
-        <header className="App-header">
-          <TableContainer className={classes.table} component={Paper}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Team</TableCell>
-                  <TableCell>W</TableCell>
-                  <TableCell>D</TableCell>
-                  <TableCell>L</TableCell>
-                  <TableCell>GD</TableCell>
-                  <TableCell>Points</TableCell>
-                </TableRow>
-              </TableHead>
-              {teams
-                .map(team => calculateResults(team, matches))
-                .sort((first, second) => second.points - first.points)
-                .map(result => {
-                  return (
-                    <TableRow>
-                      <TableCell>{result.teamName}</TableCell>
-                      <TableCell>{result.wins}</TableCell>
-                      <TableCell>{result.draws}</TableCell>
-                      <TableCell>{result.losses}</TableCell>
-                      <TableCell>{result.GD}</TableCell>
-                      <TableCell>{result.points}</TableCell>
-                    </TableRow>
-                  );
-                })}
-            </Table>
-          </TableContainer>
-          <Button variant="contained" color="primary">
-            Primary
-          </Button>
-          <Button color="primary">Primary</Button>
-        </header>
+    <ThemeProvider theme={theme}>
+      <div className={classes.app}>
+        <CssBaseline />
+        {/* <FormControl>
+            <InputLabel>Show me</InputLabel>
+            <Select>
+              {teams.map(team => (
+                <MenuItem>{team.teamShortName}</MenuItem>
+              ))}
+            </Select>
+          </FormControl> */}
+        <Paper className={classes.chipSection}>
+          {teams.map(team => (
+            <Chip key={team.teamId} label={team.teamShortName} />
+          ))}
+        </Paper>
+        <TableContainer className={classes.table} component={Paper}>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Team</TableCell>
+                <TableCell>W</TableCell>
+                <TableCell>D</TableCell>
+                <TableCell>L</TableCell>
+                <TableCell>GD</TableCell>
+                <TableCell>Points</TableCell>
+              </TableRow>
+            </TableHead>
+            {teams
+              .map(team => calculateResults(team, matches))
+              .sort((first, second) => second.points - first.points)
+              .map(result => {
+                return (
+                  <TableRow>
+                    <TableCell>{result.teamName}</TableCell>
+                    <TableCell>{result.wins}</TableCell>
+                    <TableCell>{result.draws}</TableCell>
+                    <TableCell>{result.losses}</TableCell>
+                    <TableCell>{result.GD}</TableCell>
+                    <TableCell>{result.points}</TableCell>
+                  </TableRow>
+                );
+              })}
+          </Table>
+        </TableContainer>
+        <Button variant="contained" color="primary">
+          Primary
+        </Button>
+        <Button color="primary">Primary</Button>
       </div>
-    </>
+    </ThemeProvider>
   );
 };
 

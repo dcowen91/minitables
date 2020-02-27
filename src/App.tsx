@@ -11,7 +11,8 @@ import {
   Paper,
   Chip,
   ThemeProvider,
-  createMuiTheme
+  createMuiTheme,
+  Box
 } from "@material-ui/core";
 import { deepPurple, amber } from "@material-ui/core/colors";
 
@@ -104,7 +105,12 @@ const useStyles = makeStyles({
   chipSection: {
     maxWidth: 270,
     display: "flex",
-    flexWrap: "wrap"
+    flexWrap: "wrap",
+    margin: 15,
+    padding: 5
+  },
+  box: {
+    display: "flex"
   },
   app: {
     minHeight: "100vh",
@@ -119,6 +125,10 @@ const App: React.FC = () => {
   const classes = useStyles();
   const [teams, setTeams] = React.useState<ITeam[]>([]);
   const [matches, setmatches] = React.useState<IMatch[]>([]);
+  const [filteredVisibleTeams, setFilteredVisibleTeams] = React.useState<
+    number[]
+  >([]);
+  const [filteredResults, setFilteredResults] = React.useState<number[]>([]);
 
   React.useEffect(() => {
     const url = `https://en.wikipedia.org/w/api.php?action=parse&page=2019–20_Premier_League&prop=text&section=6&format=json&origin=*`;
@@ -178,6 +188,8 @@ const App: React.FC = () => {
           }
         });
 
+        const allTeamIds = teams.map(team => team.teamId);
+        setFilteredResults(allTeamIds);
         setTeams(teams);
         setmatches(matches);
       });
@@ -196,19 +208,18 @@ const App: React.FC = () => {
     <ThemeProvider theme={theme}>
       <div className={classes.app}>
         <CssBaseline />
-        {/* <FormControl>
-            <InputLabel>Show me</InputLabel>
-            <Select>
-              {teams.map(team => (
-                <MenuItem>{team.teamShortName}</MenuItem>
-              ))}
-            </Select>
-          </FormControl> */}
-        <Paper className={classes.chipSection}>
-          {teams.map(team => (
-            <Chip key={team.teamId} label={team.teamShortName} />
-          ))}
-        </Paper>
+        <Box className={classes.box}>
+          <Paper className={classes.chipSection}>
+            {teams.map(team => (
+              <Chip key={team.teamId} label={team.teamShortName} />
+            ))}
+          </Paper>
+          <Paper className={classes.chipSection}>
+            {teams.map(team => (
+              <Chip key={team.teamId} label={team.teamShortName} />
+            ))}
+          </Paper>
+        </Box>
         <TableContainer className={classes.table} component={Paper}>
           <Table size="small">
             <TableHead>

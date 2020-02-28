@@ -1,5 +1,4 @@
 import React from "react";
-import Button from "@material-ui/core/Button";
 import {
   CssBaseline,
   TableRow,
@@ -31,6 +30,7 @@ interface IMatch {
 }
 
 interface ITableResult {
+  teamId: number;
   teamName: string;
   wins: number;
   draws: number;
@@ -69,9 +69,17 @@ function transformMatchResult(
 /**
  * TODO add filtering logic
  */
-function calculateResults(team: ITeam, matches: IMatch[]): ITableResult {
+function calculateResults(
+  team: ITeam,
+  matches: IMatch[],
+  filteredResults: number[]
+): ITableResult {
+  // TODO fix filter. if team is HOME, then
   const teamMatches = matches.filter(
-    match => match.awayId === team.teamId || match.homeId === team.teamId
+    match =>
+      (match.awayId === team.teamId &&
+        filteredResults.includes(match.homeId)) ||
+      (match.homeId === team.teamId && filteredResults.includes(match.awayId))
   );
 
   let wins: number, draws: number, losses: number, GD: number, points: number;
@@ -94,7 +102,15 @@ function calculateResults(team: ITeam, matches: IMatch[]): ITableResult {
     points = wins * 3 + draws;
   });
 
-  return { teamName: team.teamName, wins, draws, losses, GD, points };
+  return {
+    teamName: team.teamName,
+    teamId: team.teamId,
+    wins,
+    draws,
+    losses,
+    GD,
+    points
+  };
 }
 
 const useStyles = makeStyles({
@@ -190,6 +206,7 @@ const App: React.FC = () => {
 
         const allTeamIds = teams.map(team => team.teamId);
         setFilteredResults(allTeamIds);
+        setFilteredVisibleTeams(allTeamIds);
         setTeams(teams);
         setmatches(matches);
       });
@@ -211,12 +228,49 @@ const App: React.FC = () => {
         <Box className={classes.box}>
           <Paper className={classes.chipSection}>
             {teams.map(team => (
-              <Chip key={team.teamId} label={team.teamShortName} />
+              <Chip
+                key={team.teamId}
+                label={team.teamShortName}
+                color={
+                  filteredVisibleTeams.includes(team.teamId)
+                    ? "primary"
+                    : undefined
+                }
+                onClick={() => {
+                  if (filteredVisibleTeams.includes(team.teamId)) {
+                    const tempResults = filteredVisibleTeams.filter(
+                      item => item !== team.teamId
+                    );
+                    setFilteredVisibleTeams(tempResults);
+                  } else {
+                    setFilteredVisibleTeams([
+                      ...filteredVisibleTeams,
+                      team.teamId
+                    ]);
+                  }
+                }}
+              />
             ))}
           </Paper>
           <Paper className={classes.chipSection}>
             {teams.map(team => (
-              <Chip key={team.teamId} label={team.teamShortName} />
+              <Chip
+                key={team.teamId}
+                label={team.teamShortName}
+                color={
+                  filteredResults.includes(team.teamId) ? "primary" : undefined
+                }
+                onClick={() => {
+                  if (filteredResults.includes(team.teamId)) {
+                    const tempResults = filteredResults.filter(
+                      item => item !== team.teamId
+                    );
+                    setFilteredResults(tempResults);
+                  } else {
+                    setFilteredResults([...filteredResults, team.teamId]);
+                  }
+                }}
+              />
             ))}
           </Paper>
         </Box>
@@ -233,8 +287,9 @@ const App: React.FC = () => {
               </TableRow>
             </TableHead>
             {teams
-              .map(team => calculateResults(team, matches))
+              .map(team => calculateResults(team, matches, filteredResults))
               .sort((first, second) => second.points - first.points)
+              .filter(result => filteredVisibleTeams.includes(result.teamId))
               .map(result => {
                 return (
                   <TableRow>
@@ -249,10 +304,6 @@ const App: React.FC = () => {
               })}
           </Table>
         </TableContainer>
-        <Button variant="contained" color="primary">
-          Primary
-        </Button>
-        <Button color="primary">Primary</Button>
       </div>
     </ThemeProvider>
   );

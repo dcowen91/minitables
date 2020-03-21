@@ -147,7 +147,7 @@ const App: React.FC = () => {
   const [filteredResults, setFilteredResults] = React.useState<number[]>([]);
 
   React.useEffect(() => {
-    const url = `https://en.wikipedia.org/w/api.php?action=parse&page=2019–20_Premier_League&prop=text&section=6&format=json&origin=*`;
+    const url = `https://en.wikipedia.org/w/api.php?action=parse&page=2019–20_Premier_League&prop=text&section=7&format=json&origin=*`;
     fetch(url, { mode: "cors" })
       .then(res => res.json())
       .then(res => {

@@ -14,6 +14,7 @@ import {
   Box
 } from "@material-ui/core";
 import { deepPurple, amber } from "@material-ui/core/colors";
+import { NavBar } from "./Components/NavBar";
 
 // TODO break up this monolithic class
 interface ITeam {
@@ -66,15 +67,11 @@ function transformMatchResult(
   };
 }
 
-/**
- * TODO add filtering logic
- */
 function calculateResults(
   team: ITeam,
   matches: IMatch[],
   filteredResults: number[]
 ): ITableResult {
-  // TODO fix filter. if team is HOME, then
   const teamMatches = matches.filter(
     match =>
       (match.awayId === team.teamId &&
@@ -219,12 +216,12 @@ const App: React.FC = () => {
     }
   });
 
-  // TODO add click functionality for the chiops
   // TODO add padding and make all chips the same size
   return (
     <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <NavBar />
       <div className={classes.app}>
-        <CssBaseline />
         <Box className={classes.box}>
           <Paper className={classes.chipSection}>
             {teams.map(team => (

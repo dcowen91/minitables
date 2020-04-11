@@ -1,8 +1,13 @@
 ### todo
 
 [] simple analytics
+
 [] routing/sharing links
-[] add top nav bar
+
+[ x ] add top nav bar
+
 [] fix layout
-[] add some default selections
+
+[ x ] add some default selections
+
 [] style selections for chip groups

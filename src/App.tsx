@@ -1,22 +1,19 @@
 import React from "react";
 import {
   CssBaseline,
-  TableRow,
-  TableContainer,
-  Table,
-  TableHead,
-  TableCell,
   makeStyles,
   Paper,
   Chip,
   ThemeProvider,
   createMuiTheme,
-  Box
+  Box,
+  Select,
+  MenuItem,
 } from "@material-ui/core";
 import { deepPurple, amber } from "@material-ui/core/colors";
 import { NavBar } from "./Components/NavBar";
+import { ITableResult, ResultsTable } from "./Components/ResultsTable";
 
-// TODO break up this monolithic class
 interface ITeam {
   teamId: number;
   teamName: string;
@@ -30,14 +27,16 @@ interface IMatch {
   awayId: number;
 }
 
-interface ITableResult {
-  teamId: number;
-  teamName: string;
-  wins: number;
-  draws: number;
-  losses: number;
-  GD: number;
-  points: number;
+enum PresetQueries {
+  Top6,
+  Big6,
+  Bottom6,
+  TopHalf,
+  BottomHalf,
+  TopHalfVsBottom,
+  BottomHalfVsTop,
+  All,
+  Custom,
 }
 
 function transformMatchResult(
@@ -54,16 +53,13 @@ function transformMatchResult(
   ) {
     return undefined;
   }
-  const [team1Score, team2Score] = value
-    .trim()
-    .split("–")
-    .map(Number);
+  const [team1Score, team2Score] = value.trim().split("–").map(Number);
 
   return {
     homeScore: team1Score,
     awayScore: team2Score,
     homeId: team1Id,
-    awayId: team2Id
+    awayId: team2Id,
   };
 }
 
@@ -73,7 +69,7 @@ function calculateResults(
   filteredResults: number[]
 ): ITableResult {
   const teamMatches = matches.filter(
-    match =>
+    (match) =>
       (match.awayId === team.teamId &&
         filteredResults.includes(match.homeId)) ||
       (match.homeId === team.teamId && filteredResults.includes(match.awayId))
@@ -82,7 +78,7 @@ function calculateResults(
   let wins: number, draws: number, losses: number, GD: number, points: number;
   wins = draws = losses = GD = points = 0;
 
-  teamMatches.forEach(match => {
+  teamMatches.forEach((match) => {
     const isHome = match.homeId === team.teamId;
     const teamPoints = isHome ? match.homeScore : match.awayScore;
     const oppPoints = isHome ? match.awayScore : match.homeScore;
@@ -106,32 +102,31 @@ function calculateResults(
     draws,
     losses,
     GD,
-    points
+    points,
   };
 }
 
 const useStyles = makeStyles({
   table: {
     maxWidth: 800,
-    margin: "10px auto"
+    margin: "10px auto",
   },
   chipSection: {
     maxWidth: 270,
     display: "flex",
     flexWrap: "wrap",
     margin: 15,
-    padding: 5
+    padding: 5,
   },
   box: {
-    display: "flex"
+    display: "flex",
   },
   app: {
     minHeight: "100vh",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    justifyContent: "center"
-  }
+  },
 });
 
 const App: React.FC = () => {
@@ -142,12 +137,15 @@ const App: React.FC = () => {
     number[]
   >([]);
   const [filteredResults, setFilteredResults] = React.useState<number[]>([]);
+  const [presetValue, setPresetValue] = React.useState<PresetQueries>(
+    PresetQueries.All
+  );
 
   React.useEffect(() => {
     const url = `https://en.wikipedia.org/w/api.php?action=parse&page=2019–20_Premier_League&prop=text&section=7&format=json&origin=*`;
     fetch(url, { mode: "cors" })
-      .then(res => res.json())
-      .then(res => {
+      .then((res) => res.json())
+      .then((res) => {
         const teams: ITeam[] = [];
         const matches: IMatch[] = [];
 
@@ -169,7 +167,7 @@ const App: React.FC = () => {
                     ?.replace("F.C.", "")
                     .trim() ?? "",
                 teamId: index,
-                teamShortName: anchor.innerHTML
+                teamShortName: anchor.innerHTML,
               };
               teams.push(team);
             });
@@ -201,30 +199,107 @@ const App: React.FC = () => {
           }
         });
 
-        const allTeamIds = teams.map(team => team.teamId);
+        const allTeamIds = teams.map((team) => team.teamId);
         setFilteredResults(allTeamIds);
         setFilteredVisibleTeams(allTeamIds);
         setTeams(teams);
         setmatches(matches);
       });
   }, []);
+
+  React.useEffect(() => {
+    const top6 = [5, 8, 9, 10, 11, 14];
+    const big6 = [0, 5, 9, 10, 11, 16];
+    const bottom6 = [1, 2, 3, 13, 17, 18];
+    const tophalf = [...top6, 0, 4, 16, 19];
+    const bottomhalf = [...bottom6, 6, 7, 12, 15];
+    const all = [...tophalf, ...bottomhalf];
+
+    switch (presetValue) {
+      case PresetQueries.Top6:
+        setFilteredVisibleTeams(top6);
+        setFilteredResults(top6);
+        break;
+      case PresetQueries.Big6:
+        setFilteredVisibleTeams(big6);
+        setFilteredResults(big6);
+        break;
+      case PresetQueries.Bottom6:
+        setFilteredVisibleTeams(bottom6);
+        setFilteredResults(bottom6);
+        break;
+      case PresetQueries.TopHalf:
+        setFilteredVisibleTeams(tophalf);
+        setFilteredResults(tophalf);
+        break;
+      case PresetQueries.BottomHalf:
+        setFilteredVisibleTeams(bottomhalf);
+        setFilteredResults(bottomhalf);
+        break;
+      case PresetQueries.TopHalfVsBottom:
+        setFilteredVisibleTeams(tophalf);
+        setFilteredResults(bottomhalf);
+        break;
+      case PresetQueries.BottomHalfVsTop:
+        setFilteredVisibleTeams(bottomhalf);
+        setFilteredResults(tophalf);
+        break;
+      case PresetQueries.All:
+        setFilteredVisibleTeams(all);
+        setFilteredResults(all);
+        break;
+      default:
+        break;
+    }
+  }, [presetValue]);
+
   const theme = createMuiTheme({
     palette: {
       type: "dark",
-      primary: deepPurple,
-      secondary: amber
-    }
+      primary: deepPurple, // TODO make better theme colors
+      secondary: amber,
+    },
   });
 
+  const tableResults: ITableResult[] = teams
+    .map((team) => calculateResults(team, matches, filteredResults))
+    .sort((first, second) => second.points - first.points)
+    .filter((result) => filteredVisibleTeams.includes(result.teamId));
+
   // TODO add padding and make all chips the same size
+  // TODO create filter section component, move interfaces to a types file
+  // TODO add routing/link sharing for custom
+  // TODO add "sync" button to apply changes from one chip section to other
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <NavBar />
       <div className={classes.app}>
         <Box className={classes.box}>
+          <Select
+            value={presetValue}
+            onChange={(evt) =>
+              setPresetValue(evt.target.value as PresetQueries)
+            }
+          >
+            <MenuItem value={PresetQueries.All}>All results</MenuItem>
+            <MenuItem value={PresetQueries.Top6}>Top 6</MenuItem>
+            <MenuItem value={PresetQueries.Big6}>Traditional Big 6</MenuItem>
+            <MenuItem value={PresetQueries.Bottom6}>Bottom 6</MenuItem>
+            <MenuItem value={PresetQueries.TopHalf}>Top half</MenuItem>
+            <MenuItem value={PresetQueries.BottomHalf}>Bottom half</MenuItem>
+            <MenuItem value={PresetQueries.TopHalfVsBottom}>
+              Top half agains the bottom half
+            </MenuItem>
+            <MenuItem value={PresetQueries.BottomHalfVsTop}>
+              Bottom half against the top half
+            </MenuItem>
+            <MenuItem value={PresetQueries.Custom}>Custom</MenuItem>
+          </Select>
+        </Box>
+        <Box className={classes.box}>
           <Paper className={classes.chipSection}>
-            {teams.map(team => (
+            {teams.map((team) => (
               <Chip
                 key={team.teamId}
                 label={team.teamShortName}
@@ -236,21 +311,22 @@ const App: React.FC = () => {
                 onClick={() => {
                   if (filteredVisibleTeams.includes(team.teamId)) {
                     const tempResults = filteredVisibleTeams.filter(
-                      item => item !== team.teamId
+                      (item) => item !== team.teamId
                     );
                     setFilteredVisibleTeams(tempResults);
                   } else {
                     setFilteredVisibleTeams([
                       ...filteredVisibleTeams,
-                      team.teamId
+                      team.teamId,
                     ]);
                   }
+                  setPresetValue(PresetQueries.Custom);
                 }}
               />
             ))}
           </Paper>
           <Paper className={classes.chipSection}>
-            {teams.map(team => (
+            {teams.map((team) => (
               <Chip
                 key={team.teamId}
                 label={team.teamShortName}
@@ -260,47 +336,19 @@ const App: React.FC = () => {
                 onClick={() => {
                   if (filteredResults.includes(team.teamId)) {
                     const tempResults = filteredResults.filter(
-                      item => item !== team.teamId
+                      (item) => item !== team.teamId
                     );
                     setFilteredResults(tempResults);
                   } else {
                     setFilteredResults([...filteredResults, team.teamId]);
                   }
+                  setPresetValue(PresetQueries.Custom);
                 }}
               />
             ))}
           </Paper>
         </Box>
-        <TableContainer className={classes.table} component={Paper}>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Team</TableCell>
-                <TableCell>W</TableCell>
-                <TableCell>D</TableCell>
-                <TableCell>L</TableCell>
-                <TableCell>GD</TableCell>
-                <TableCell>Points</TableCell>
-              </TableRow>
-            </TableHead>
-            {teams
-              .map(team => calculateResults(team, matches, filteredResults))
-              .sort((first, second) => second.points - first.points)
-              .filter(result => filteredVisibleTeams.includes(result.teamId))
-              .map(result => {
-                return (
-                  <TableRow>
-                    <TableCell>{result.teamName}</TableCell>
-                    <TableCell>{result.wins}</TableCell>
-                    <TableCell>{result.draws}</TableCell>
-                    <TableCell>{result.losses}</TableCell>
-                    <TableCell>{result.GD}</TableCell>
-                    <TableCell>{result.points}</TableCell>
-                  </TableRow>
-                );
-              })}
-          </Table>
-        </TableContainer>
+        <ResultsTable results={tableResults} />
       </div>
     </ThemeProvider>
   );

@@ -4,10 +4,10 @@
 
 [] routing/sharing links
 
-[ x ] add top nav bar
+[x] add top nav bar
 
 [] fix layout
 
-[ x ] add some default selections
+[x] add some default selections
 
 [] style selections for chip groups

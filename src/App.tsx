@@ -127,6 +127,9 @@ const useStyles = makeStyles({
     flexDirection: "column",
     alignItems: "center",
   },
+  select: {
+    minWidth: "200px",
+  },
 });
 
 const App: React.FC = () => {
@@ -281,6 +284,8 @@ const App: React.FC = () => {
             onChange={(evt) =>
               setPresetValue(evt.target.value as PresetQueries)
             }
+            autoWidth
+            className={classes.select}
           >
             <MenuItem value={PresetQueries.All}>All results</MenuItem>
             <MenuItem value={PresetQueries.Top6}>Top 6</MenuItem>

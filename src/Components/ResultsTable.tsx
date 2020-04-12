@@ -28,6 +28,9 @@ const useStyles = makeStyles({
     maxWidth: 800,
     margin: "10px auto",
   },
+  nameColumn: {
+    minWidth: "300px",
+  },
 });
 
 export const ResultsTable = (props: IResultsTableProps) => {
@@ -38,7 +41,7 @@ export const ResultsTable = (props: IResultsTableProps) => {
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell>Team</TableCell>
+            <TableCell className={classes.nameColumn}>Team</TableCell>
             <TableCell>W</TableCell>
             <TableCell>D</TableCell>
             <TableCell>L</TableCell>
@@ -49,7 +52,9 @@ export const ResultsTable = (props: IResultsTableProps) => {
         {props.results.map((result) => {
           return (
             <TableRow>
-              <TableCell>{result.teamName}</TableCell>
+              <TableCell className={classes.nameColumn}>
+                {result.teamName}
+              </TableCell>
               <TableCell>{result.wins}</TableCell>
               <TableCell>{result.draws}</TableCell>
               <TableCell>{result.losses}</TableCell>

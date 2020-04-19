@@ -2,42 +2,19 @@ import React from "react";
 import {
   CssBaseline,
   makeStyles,
-  Paper,
-  Chip,
   ThemeProvider,
   createMuiTheme,
-  Box,
-  Select,
-  MenuItem,
+  Typography,
+  ExpansionPanel,
+  ExpansionPanelSummary,
+  ExpansionPanelDetails,
 } from "@material-ui/core";
 import { deepPurple, amber } from "@material-ui/core/colors";
 import { NavBar } from "./Components/NavBar";
 import { ITableResult, ResultsTable } from "./Components/ResultsTable";
-
-interface ITeam {
-  teamId: number;
-  teamName: string;
-  teamShortName: string;
-}
-
-interface IMatch {
-  homeScore: number;
-  awayScore: number;
-  homeId: number;
-  awayId: number;
-}
-
-enum PresetQueries {
-  Top6,
-  Big6,
-  Bottom6,
-  TopHalf,
-  BottomHalf,
-  TopHalfVsBottom,
-  BottomHalfVsTop,
-  All,
-  Custom,
-}
+import { IMatch, ITeam, PresetQueries } from "./App.types";
+import { FormSection } from "./Components/FormSection";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 function transformMatchResult(
   value: string | null | undefined,
@@ -107,28 +84,13 @@ function calculateResults(
 }
 
 const useStyles = makeStyles({
-  table: {
-    maxWidth: 800,
-    margin: "10px auto",
-  },
-  chipSection: {
-    maxWidth: 270,
-    display: "flex",
-    flexWrap: "wrap",
-    margin: 15,
-    padding: 5,
-  },
-  box: {
-    display: "flex",
-  },
   app: {
-    minHeight: "100vh",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
   },
-  select: {
-    minWidth: "200px",
+  intro: {
+    marginTop: "20px",
   },
 });
 
@@ -152,10 +114,8 @@ const App: React.FC = () => {
         const teams: ITeam[] = [];
         const matches: IMatch[] = [];
 
-        console.log(res.parse.text["*"]);
         let domParser = new DOMParser();
         const doc = domParser.parseFromString(res.parse.text["*"], "text/xml");
-        console.dir(doc);
         const table = doc.querySelector("table");
         table?.querySelectorAll("tr").forEach((tr, index) => {
           if (index === 0) {
@@ -269,7 +229,6 @@ const App: React.FC = () => {
     .sort((first, second) => second.points - first.points)
     .filter((result) => filteredVisibleTeams.includes(result.teamId));
 
-  // TODO add padding and make all chips the same size
   // TODO create filter section component, move interfaces to a types file
   // TODO add routing/link sharing for custom
   // TODO add "sync" button to apply changes from one chip section to other
@@ -278,82 +237,28 @@ const App: React.FC = () => {
       <CssBaseline />
       <NavBar />
       <div className={classes.app}>
-        <Box className={classes.box}>
-          <Select
-            value={presetValue}
-            onChange={(evt) =>
-              setPresetValue(evt.target.value as PresetQueries)
-            }
-            autoWidth
-            className={classes.select}
-          >
-            <MenuItem value={PresetQueries.All}>All results</MenuItem>
-            <MenuItem value={PresetQueries.Top6}>Top 6</MenuItem>
-            <MenuItem value={PresetQueries.Big6}>Traditional Big 6</MenuItem>
-            <MenuItem value={PresetQueries.Bottom6}>Bottom 6</MenuItem>
-            <MenuItem value={PresetQueries.TopHalf}>Top half</MenuItem>
-            <MenuItem value={PresetQueries.BottomHalf}>Bottom half</MenuItem>
-            <MenuItem value={PresetQueries.TopHalfVsBottom}>
-              Top half agains the bottom half
-            </MenuItem>
-            <MenuItem value={PresetQueries.BottomHalfVsTop}>
-              Bottom half against the top half
-            </MenuItem>
-            <MenuItem value={PresetQueries.Custom}>Custom</MenuItem>
-          </Select>
-        </Box>
-        <Box className={classes.box}>
-          <Paper className={classes.chipSection}>
-            {teams.map((team) => (
-              <Chip
-                key={team.teamId}
-                label={team.teamShortName}
-                color={
-                  filteredVisibleTeams.includes(team.teamId)
-                    ? "primary"
-                    : undefined
-                }
-                onClick={() => {
-                  if (filteredVisibleTeams.includes(team.teamId)) {
-                    const tempResults = filteredVisibleTeams.filter(
-                      (item) => item !== team.teamId
-                    );
-                    setFilteredVisibleTeams(tempResults);
-                  } else {
-                    setFilteredVisibleTeams([
-                      ...filteredVisibleTeams,
-                      team.teamId,
-                    ]);
-                  }
-                  setPresetValue(PresetQueries.Custom);
-                }}
-              />
-            ))}
-          </Paper>
-          <Paper className={classes.chipSection}>
-            {teams.map((team) => (
-              <Chip
-                key={team.teamId}
-                label={team.teamShortName}
-                color={
-                  filteredResults.includes(team.teamId) ? "primary" : undefined
-                }
-                onClick={() => {
-                  if (filteredResults.includes(team.teamId)) {
-                    const tempResults = filteredResults.filter(
-                      (item) => item !== team.teamId
-                    );
-                    setFilteredResults(tempResults);
-                  } else {
-                    setFilteredResults([...filteredResults, team.teamId]);
-                  }
-                  setPresetValue(PresetQueries.Custom);
-                }}
-              />
-            ))}
-          </Paper>
-        </Box>
-        <ResultsTable results={tableResults} />
+        {/* <ExpansionPanel className={classes.intro}>
+          <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography>About</Typography>
+          </ExpansionPanelSummary>
+          <ExpansionPanelDetails>
+            <Typography>Minitables is so cool! I love it!</Typography>
+          </ExpansionPanelDetails>
+        </ExpansionPanel> */}
+        {teams.length > 0 && (
+          <>
+            <FormSection
+              teams={teams}
+              filteredResults={filteredResults}
+              filteredVisibleTeams={filteredVisibleTeams}
+              presetValue={presetValue}
+              setFilteredResults={setFilteredResults}
+              setFilteredVisibleTeams={setFilteredVisibleTeams}
+              setPresetValue={setPresetValue}
+            />
+            <ResultsTable results={tableResults} />
+          </>
+        )}
       </div>
     </ThemeProvider>
   );

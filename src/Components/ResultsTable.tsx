@@ -7,6 +7,7 @@ import {
   TableCell,
   makeStyles,
   Paper,
+  TableBody,
 } from "@material-ui/core";
 
 export interface ITableResult {
@@ -49,20 +50,22 @@ export const ResultsTable = (props: IResultsTableProps) => {
             <TableCell>Points</TableCell>
           </TableRow>
         </TableHead>
-        {props.results.map((result) => {
-          return (
-            <TableRow>
-              <TableCell className={classes.nameColumn}>
-                {result.teamName}
-              </TableCell>
-              <TableCell>{result.wins}</TableCell>
-              <TableCell>{result.draws}</TableCell>
-              <TableCell>{result.losses}</TableCell>
-              <TableCell>{result.GD}</TableCell>
-              <TableCell>{result.points}</TableCell>
-            </TableRow>
-          );
-        })}
+        <TableBody>
+          {props.results.map((result) => {
+            return (
+              <TableRow key={result.teamId}>
+                <TableCell className={classes.nameColumn}>
+                  {result.teamName}
+                </TableCell>
+                <TableCell>{result.wins}</TableCell>
+                <TableCell>{result.draws}</TableCell>
+                <TableCell>{result.losses}</TableCell>
+                <TableCell>{result.GD}</TableCell>
+                <TableCell>{result.points}</TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
       </Table>
     </TableContainer>
   );

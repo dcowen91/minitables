@@ -6,7 +6,7 @@ import {
   Toolbar,
   Theme,
   createStyles,
-  Link
+  Link,
 } from "@material-ui/core";
 import SportsSoccerIcon from "@material-ui/icons/SportsSoccer";
 import GitHubIcon from "@material-ui/icons/GitHub";
@@ -14,12 +14,12 @@ import GitHubIcon from "@material-ui/icons/GitHub";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     appIcon: {
-      marginRight: theme.spacing(2)
+      marginRight: theme.spacing(2),
     },
     appTitle: {
-      flexGrow: 1
+      flexGrow: 1,
     },
-    source: { color: "white", height: "24px" }
+    source: { color: "white", height: "24px" },
   })
 );
 

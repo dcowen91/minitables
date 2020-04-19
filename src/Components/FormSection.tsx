@@ -10,6 +10,7 @@ import {
   FormControl,
 } from "@material-ui/core";
 import { ITeam, PresetQueries } from "../App.types";
+import InfoIcon from '@material-ui/icons/Info';
 
 const useStyles = makeStyles({
   chipSection: {
@@ -34,6 +35,9 @@ const useStyles = makeStyles({
   chipHeader: {
     width: "100%",
   },
+  infoIcon : {
+      fontSize: "14px"
+  }
 });
 
 interface IFormSectionProps {
@@ -86,7 +90,7 @@ export const FormSection = (props: IFormSectionProps) => {
       <Box className={classes.box}>
         <Paper className={classes.chipSection}>
           <FormHelperText className={classes.chipHeader}>
-            Visible teams
+            Visible teams <InfoIcon className={classes.infoIcon} />
           </FormHelperText>
           {props.teams.map((team: ITeam) => (
             <Chip
@@ -117,7 +121,7 @@ export const FormSection = (props: IFormSectionProps) => {
         </Paper>
         <Paper className={classes.chipSection}>
           <FormHelperText className={classes.chipHeader}>
-            Included opponents
+            Included opponents <InfoIcon className={classes.infoIcon} />
           </FormHelperText>
           {props.teams.map((team) => (
             <Chip

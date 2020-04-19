@@ -5,16 +5,12 @@ import {
   ThemeProvider,
   createMuiTheme,
   Typography,
-  ExpansionPanel,
-  ExpansionPanelSummary,
-  ExpansionPanelDetails,
 } from "@material-ui/core";
 import { deepPurple, amber } from "@material-ui/core/colors";
 import { NavBar } from "./Components/NavBar";
 import { ITableResult, ResultsTable } from "./Components/ResultsTable";
 import { IMatch, ITeam, PresetQueries } from "./App.types";
 import { FormSection } from "./Components/FormSection";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 function transformMatchResult(
   value: string | null | undefined,
@@ -91,6 +87,7 @@ const useStyles = makeStyles({
   },
   intro: {
     marginTop: "20px",
+    maxWidth: "650px"
   },
 });
 
@@ -237,14 +234,7 @@ const App: React.FC = () => {
       <CssBaseline />
       <NavBar />
       <div className={classes.app}>
-        {/* <ExpansionPanel className={classes.intro}>
-          <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography>About</Typography>
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
-            <Typography>Minitables is so cool! I love it!</Typography>
-          </ExpansionPanelDetails>
-        </ExpansionPanel> */}
+      <Typography className={classes.intro}>Minitables lets you compare small league results for the Premier League. Select an item from the preset to look at results only between the top 6 teams, or the traditional big 6. Or click on the chips to create your own mini league table!</Typography>
         {teams.length > 0 && (
           <>
             <FormSection

@@ -42,18 +42,20 @@ export const ResultsTable = (props: IResultsTableProps) => {
       <Table size="small">
         <TableHead>
           <TableRow>
+            <TableCell>Position</TableCell>
             <TableCell className={classes.nameColumn}>Team</TableCell>
-            <TableCell>W</TableCell>
-            <TableCell>D</TableCell>
-            <TableCell>L</TableCell>
+            <TableCell>Wins</TableCell>
+            <TableCell>Draws</TableCell>
+            <TableCell>Losses</TableCell>
             <TableCell>GD</TableCell>
             <TableCell>Points</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {props.results.map((result) => {
+          {props.results.map((result, index) => {
             return (
               <TableRow key={result.teamId}>
+                <TableCell>{index + 1}</TableCell>
                 <TableCell className={classes.nameColumn}>
                   {result.teamName}
                 </TableCell>

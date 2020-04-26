@@ -11,30 +11,8 @@ import { NavBar } from "./Components/NavBar";
 import { ITableResult, ResultsTable } from "./Components/ResultsTable";
 import { IMatch, ITeam, PresetQueries } from "./App.types";
 import { FormSection } from "./Components/FormSection";
-
-function transformMatchResult(
-  value: string | null | undefined,
-  team1Id: number,
-  team2Id: number
-): IMatch | undefined {
-  if (
-    !value ||
-    !value.trim() ||
-    value.trim() === "a" ||
-    value.trim() === "\\n" ||
-    value.trim() === "—"
-  ) {
-    return undefined;
-  }
-  const [team1Score, team2Score] = value.trim().split("–").map(Number);
-
-  return {
-    homeScore: team1Score,
-    awayScore: team2Score,
-    homeId: team1Id,
-    awayId: team2Id,
-  };
-}
+import { createBrowserHistory } from "history";
+import { StaticLeagueData } from "./Data/leagueData";
 
 function calculateResults(
   team: ITeam,
@@ -87,85 +65,98 @@ const useStyles = makeStyles({
   },
   intro: {
     marginTop: "20px",
-    maxWidth: "650px"
+    maxWidth: "650px",
   },
 });
 
+function parseHash(teamsHash: string): number[] {
+  const result = [];
+  let number = parseInt(teamsHash, 16);
+  for (let i = 19; i >= 0; i--) {
+    const isIncluded = Boolean(number >> i);
+    if (isIncluded) {
+      result.unshift(i);
+      // do this if number > i << index (plus 1)? need to figure this match out
+      // number = number >> 1;
+    }
+  }
+
+  return result;
+}
+
+function convertToHash(teams: number[]): string {
+  let result = 0;
+  for (let i = 0; i < 20; i++) {
+    const teamIsIncluded = teams.includes(i);
+    result += Number(teamIsIncluded) << i;
+  }
+  return result.toString(16);
+}
+
+// TODO separate data layer from filter state
 const App: React.FC = () => {
   const classes = useStyles();
-  const [teams, setTeams] = React.useState<ITeam[]>([]);
-  const [matches, setmatches] = React.useState<IMatch[]>([]);
+  const [teams, _setTeams] = React.useState<ITeam[]>(StaticLeagueData.teams);
+  const [matches, _setmatches] = React.useState<IMatch[]>(
+    StaticLeagueData.matches
+  );
   const [filteredVisibleTeams, setFilteredVisibleTeams] = React.useState<
     number[]
-  >([]);
-  const [filteredResults, setFilteredResults] = React.useState<number[]>([]);
+  >([5, 8, 9, 10, 11, 14]);
+  const [filteredResults, setFilteredResults] = React.useState<number[]>([
+    5,
+    8,
+    9,
+    10,
+    11,
+    14,
+  ]);
   const [presetValue, setPresetValue] = React.useState<PresetQueries>(
-    PresetQueries.All
+    PresetQueries.Top6
   );
 
+  const history = createBrowserHistory();
+
   React.useEffect(() => {
-    const url = `https://en.wikipedia.org/w/api.php?action=parse&page=2019–20_Premier_League&prop=text&section=7&format=json&origin=*`;
-    fetch(url, { mode: "cors" })
-      .then((res) => res.json())
-      .then((res) => {
-        const teams: ITeam[] = [];
-        const matches: IMatch[] = [];
+    const pathName = history.location.pathname;
+    if (pathName !== "/") {
+      const parts = pathName.split("/");
+      const firstPart: string = parts[1];
+      if (firstPart === PresetQueries[PresetQueries.Custom]) {
+        const teamNumbers = parseHash(parts[2]);
+        const resultNumbers = parseHash(parts[3]);
 
-        let domParser = new DOMParser();
-        const doc = domParser.parseFromString(res.parse.text["*"], "text/xml");
-        const table = doc.querySelector("table");
-        table?.querySelectorAll("tr").forEach((tr, index) => {
-          if (index === 0) {
-            // Parse header row -> extract teams
-            const anchors = tr.querySelectorAll("a");
-            anchors.forEach((anchor, index) => {
-              const team: ITeam = {
-                teamName:
-                  anchor
-                    .getAttribute("title")
-                    ?.replace("A.F.C.", "")
-                    ?.replace("F.C.", "")
-                    .trim() ?? "",
-                teamId: index,
-                teamShortName: anchor.innerHTML,
-              };
-              teams.push(team);
-            });
-          } else {
-            // parse non-header row -> extract match;
-            const cells = tr.querySelectorAll("td");
-            cells.forEach((cell, innerIndex) => {
-              const child = cell.firstChild;
-              let result: IMatch | undefined;
-
-              if (child?.lastChild) {
-                result = transformMatchResult(
-                  child.lastChild?.nodeValue,
-                  index - 1,
-                  innerIndex
-                );
-              } else {
-                result = transformMatchResult(
-                  child?.nodeValue,
-                  index - 1,
-                  innerIndex
-                );
-              }
-
-              if (result) {
-                matches.push(result);
-              }
-            });
-          }
-        });
-
-        const allTeamIds = teams.map((team) => team.teamId);
-        setFilteredResults(allTeamIds);
-        setFilteredVisibleTeams(allTeamIds);
-        setTeams(teams);
-        setmatches(matches);
-      });
+        setPresetValue(PresetQueries.Custom);
+        setFilteredVisibleTeams(teamNumbers);
+        setFilteredResults(resultNumbers);
+      } else if (firstPart in PresetQueries) {
+        // TODO this works but there is a redirect flicker -> how to fix?
+        setPresetValue(PresetQueries[firstPart as any] as any);
+      }
+    }
   }, []);
+
+  React.useEffect(() => {
+    if (presetValue !== PresetQueries.Custom) {
+      history.replace(`/${PresetQueries[presetValue]}`);
+    } else {
+      const teamHash = convertToHash(filteredVisibleTeams);
+      const resultHash = convertToHash(filteredResults);
+
+      const path = `/${PresetQueries[presetValue]}/${teamHash}/${resultHash}`;
+      history.replace(path);
+    }
+  }, [presetValue, filteredResults, filteredVisibleTeams]);
+
+  // If the PL ever resumes, then this will be needed
+  // React.useEffect(() => {
+  //   getLeagueData().then(({ allTeamIds, teams, matches }) => {
+  //     setFilteredResults(allTeamIds);
+  //     setFilteredVisibleTeams(allTeamIds);
+  //     setTeams(teams);
+  //     setmatches(matches);
+  //   });
+  // }, []);
 
   React.useEffect(() => {
     const top6 = [5, 8, 9, 10, 11, 14];
@@ -234,7 +225,12 @@ const App: React.FC = () => {
       <CssBaseline />
       <NavBar />
       <div className={classes.app}>
-      <Typography className={classes.intro}>Minitables lets you compare small league results for the Premier League. Select an item from the preset to look at results only between the top 6 teams, or the traditional big 6. Or click on the chips to create your own mini league table!</Typography>
+        <Typography className={classes.intro}>
+          Minitables lets you compare small league results for the Premier
+          League. Select an item from the preset to look at results only between
+          the top 6 teams, or the traditional big 6. Or click on the chips to
+          create your own mini league table!
+        </Typography>
         {teams.length > 0 && (
           <>
             <FormSection

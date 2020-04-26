@@ -10,7 +10,7 @@ import {
   FormControl,
 } from "@material-ui/core";
 import { ITeam, PresetQueries } from "../App.types";
-import InfoIcon from '@material-ui/icons/Info';
+import InfoIcon from "@material-ui/icons/Info";
 
 const useStyles = makeStyles({
   chipSection: {
@@ -35,9 +35,9 @@ const useStyles = makeStyles({
   chipHeader: {
     width: "100%",
   },
-  infoIcon : {
-      fontSize: "14px"
-  }
+  infoIcon: {
+    fontSize: "14px",
+  },
 });
 
 interface IFormSectionProps {
@@ -52,11 +52,6 @@ interface IFormSectionProps {
 
 export const FormSection = (props: IFormSectionProps) => {
   const classes = useStyles();
-
-  React.useEffect(() => {
-    props.setPresetValue(PresetQueries.Top6);
-    // eslint-disable-next-line
-  }, []);
 
   return (
     <>

@@ -70,17 +70,13 @@ const useStyles = makeStyles({
 });
 
 function parseHash(teamsHash: string): number[] {
-  const result = [];
-  let number = parseInt(teamsHash, 16);
-  for (let i = 19; i >= 0; i--) {
-    const isIncluded = Boolean(number >> i);
-    if (isIncluded) {
+  const result: number[] = [];
+  const binary = parseInt(teamsHash, 16).toString(2).split("");
+  for (let i = 20; i >= 0; i--) {
+    if (binary[i]) {
       result.unshift(i);
-      // do this if number > i << index (plus 1)? need to figure this match out
-      // number = number >> 1;
     }
   }
-
   return result;
 }
 

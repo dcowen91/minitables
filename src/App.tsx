@@ -13,6 +13,7 @@ import { IMatch, ITeam, PresetQueries } from "./App.types";
 import { FormSection } from "./Components/FormSection";
 import { createBrowserHistory } from "history";
 import { StaticLeagueData } from "./Data/leagueData";
+import { PresetQueryDataMap } from "./Data/constants";
 
 function calculateResults(
   team: ITeam,
@@ -89,49 +90,53 @@ function convertToHash(teams: number[]): string {
   return result.toString(16);
 }
 
+function parseUrlState(
+  pathName: string
+): {
+  preset: PresetQueries;
+  visibleTeams: number[];
+  visibleResults: number[];
+} {
+  let preset = PresetQueries.Top6;
+  let visibleTeams = PresetQueryDataMap[preset]!.visible;
+  let visibleResults = PresetQueryDataMap[preset]!.results;
+
+  if (pathName !== "/") {
+    const parts = pathName.split("/");
+    const firstPart: string = parts[1];
+    if (firstPart === PresetQueries[PresetQueries.Custom]) {
+      preset = PresetQueries.Custom;
+      visibleTeams = parseHash(parts[2]);
+      visibleResults = parseHash(parts[3]);
+    } else if (firstPart in PresetQueries) {
+      preset = PresetQueries[firstPart as any] as any;
+      visibleTeams = PresetQueryDataMap[preset]!.visible;
+      visibleResults = PresetQueryDataMap[preset]!.results;
+    }
+  }
+  return { preset, visibleResults, visibleTeams };
+}
+
 // TODO separate data layer from filter state
 const App: React.FC = () => {
   const classes = useStyles();
+  const history = createBrowserHistory();
+  const { preset, visibleTeams, visibleResults } = parseUrlState(
+    history.location.pathname
+  );
   const [teams, _setTeams] = React.useState<ITeam[]>(StaticLeagueData.teams);
   const [matches, _setmatches] = React.useState<IMatch[]>(
     StaticLeagueData.matches
   );
   const [filteredVisibleTeams, setFilteredVisibleTeams] = React.useState<
     number[]
-  >([5, 8, 9, 10, 11, 14]);
-  const [filteredResults, setFilteredResults] = React.useState<number[]>([
-    5,
-    8,
-    9,
-    10,
-    11,
-    14,
-  ]);
-  const [presetValue, setPresetValue] = React.useState<PresetQueries>(
-    PresetQueries.Top6
+  >(visibleTeams);
+  const [filteredResults, setFilteredResults] = React.useState<number[]>(
+    visibleResults
   );
+  const [presetValue, setPresetValue] = React.useState<PresetQueries>(preset);
 
-  const history = createBrowserHistory();
-
-  React.useEffect(() => {
-    const pathName = history.location.pathname;
-    if (pathName !== "/") {
-      const parts = pathName.split("/");
-      const firstPart: string = parts[1];
-      if (firstPart === PresetQueries[PresetQueries.Custom]) {
-        const teamNumbers = parseHash(parts[2]);
-        const resultNumbers = parseHash(parts[3]);
-
-        setPresetValue(PresetQueries.Custom);
-        setFilteredVisibleTeams(teamNumbers);
-        setFilteredResults(resultNumbers);
-      } else if (firstPart in PresetQueries) {
-        // TODO this works but there is a redirect flicker -> how to fix?
-        setPresetValue(PresetQueries[firstPart as any] as any);
-      }
-    }
-  }, []);
-
+  // on change, update URL
   React.useEffect(() => {
     if (presetValue !== PresetQueries.Custom) {
       history.replace(`/${PresetQueries[presetValue]}`);
@@ -155,48 +160,11 @@ const App: React.FC = () => {
   // }, []);
 
   React.useEffect(() => {
-    const top6 = [5, 8, 9, 10, 11, 14];
-    const big6 = [0, 5, 9, 10, 11, 16];
-    const bottom6 = [1, 2, 3, 13, 17, 18];
-    const tophalf = [...top6, 0, 4, 16, 19];
-    const bottomhalf = [...bottom6, 6, 7, 12, 15];
-    const all = [...tophalf, ...bottomhalf];
+    if (presetValue !== PresetQueries.Custom) {
+      const presetData = PresetQueryDataMap[presetValue];
 
-    switch (presetValue) {
-      case PresetQueries.Top6:
-        setFilteredVisibleTeams(top6);
-        setFilteredResults(top6);
-        break;
-      case PresetQueries.Big6:
-        setFilteredVisibleTeams(big6);
-        setFilteredResults(big6);
-        break;
-      case PresetQueries.Bottom6:
-        setFilteredVisibleTeams(bottom6);
-        setFilteredResults(bottom6);
-        break;
-      case PresetQueries.TopHalf:
-        setFilteredVisibleTeams(tophalf);
-        setFilteredResults(tophalf);
-        break;
-      case PresetQueries.BottomHalf:
-        setFilteredVisibleTeams(bottomhalf);
-        setFilteredResults(bottomhalf);
-        break;
-      case PresetQueries.TopHalfVsBottom:
-        setFilteredVisibleTeams(tophalf);
-        setFilteredResults(bottomhalf);
-        break;
-      case PresetQueries.BottomHalfVsTop:
-        setFilteredVisibleTeams(bottomhalf);
-        setFilteredResults(tophalf);
-        break;
-      case PresetQueries.All:
-        setFilteredVisibleTeams(all);
-        setFilteredResults(all);
-        break;
-      default:
-        break;
+      setFilteredVisibleTeams(presetData!.visible);
+      setFilteredResults(presetData!.results);
     }
   }, [presetValue]);
 
@@ -213,7 +181,6 @@ const App: React.FC = () => {
     .sort((first, second) => second.points - first.points)
     .filter((result) => filteredVisibleTeams.includes(result.teamId));
 
-  // TODO create filter section component, move interfaces to a types file
   // TODO add routing/link sharing for custom
   // TODO add "sync" button to apply changes from one chip section to other
   return (
@@ -227,20 +194,16 @@ const App: React.FC = () => {
           the top 6 teams, or the traditional big 6. Or click on the chips to
           create your own mini league table!
         </Typography>
-        {teams.length > 0 && (
-          <>
-            <FormSection
-              teams={teams}
-              filteredResults={filteredResults}
-              filteredVisibleTeams={filteredVisibleTeams}
-              presetValue={presetValue}
-              setFilteredResults={setFilteredResults}
-              setFilteredVisibleTeams={setFilteredVisibleTeams}
-              setPresetValue={setPresetValue}
-            />
-            <ResultsTable results={tableResults} />
-          </>
-        )}
+        <FormSection
+          teams={teams}
+          filteredResults={filteredResults}
+          filteredVisibleTeams={filteredVisibleTeams}
+          presetValue={presetValue}
+          setFilteredResults={setFilteredResults}
+          setFilteredVisibleTeams={setFilteredVisibleTeams}
+          setPresetValue={setPresetValue}
+        />
+        <ResultsTable results={tableResults} />
       </div>
     </ThemeProvider>
   );

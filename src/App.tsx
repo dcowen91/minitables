@@ -71,11 +71,12 @@ const useStyles = makeStyles({
 });
 
 function parseHash(teamsHash: string): number[] {
+  // todo anowen this doesn't work
   const result: number[] = [];
-  const binary = parseInt(teamsHash, 16).toString(2).split("");
-  for (let i = 20; i >= 0; i--) {
-    if (binary[i]) {
-      result.unshift(i);
+  const binary = parseInt(teamsHash, 16).toString(2).split("").reverse();
+  for (let i = 0; i < 20; i++) {
+    if (Number(binary[i])) {
+      result.push(i);
     }
   }
   return result;

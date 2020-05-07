@@ -4,6 +4,8 @@
 - [x] add some default selections
 - [x] style selections for chip groups
 - [ ] analytics
-- [ ] routing/sharing links
+- [x] routing
+- [ ] add link sharing
 - [ ] fix layout
 - [ ] add info tooltips and change header
+- [ ] responsive/mobile support

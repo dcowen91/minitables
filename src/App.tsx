@@ -47,6 +47,8 @@ function calculateResults(
     points = wins * 3 + draws;
   });
 
+  const pointsPerGame = Number((points / (wins + losses + draws)).toFixed(1));
+
   return {
     teamName: team.teamName,
     teamId: team.teamId,
@@ -55,6 +57,7 @@ function calculateResults(
     losses,
     GD,
     points,
+    pointsPerGame,
   };
 }
 
@@ -71,7 +74,6 @@ const useStyles = makeStyles({
 });
 
 function parseHash(teamsHash: string): number[] {
-  // todo anowen this doesn't work
   const result: number[] = [];
   const binary = parseInt(teamsHash, 16).toString(2).split("").reverse();
   for (let i = 0; i < 20; i++) {
@@ -118,7 +120,6 @@ function parseUrlState(
   return { preset, visibleResults, visibleTeams };
 }
 
-// TODO separate data layer from filter state
 const App: React.FC = () => {
   const classes = useStyles();
   const history = createBrowserHistory();
@@ -177,6 +178,7 @@ const App: React.FC = () => {
     },
   });
 
+  // TODO add custom sorting support
   const tableResults: ITableResult[] = teams
     .map((team) => calculateResults(team, matches, filteredResults))
     .sort((first, second) => second.points - first.points)

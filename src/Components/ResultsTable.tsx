@@ -18,6 +18,7 @@ export interface ITableResult {
   losses: number;
   GD: number;
   points: number;
+  pointsPerGame: number;
 }
 
 interface IResultsTableProps {
@@ -30,7 +31,7 @@ const useStyles = makeStyles({
     margin: "10px auto",
   },
   nameColumn: {
-    minWidth: "300px",
+    minWidth: "250px",
   },
 });
 
@@ -49,6 +50,7 @@ export const ResultsTable = (props: IResultsTableProps) => {
             <TableCell>Losses</TableCell>
             <TableCell>GD</TableCell>
             <TableCell>Points</TableCell>
+            <TableCell>PPG</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -64,6 +66,7 @@ export const ResultsTable = (props: IResultsTableProps) => {
                 <TableCell>{result.losses}</TableCell>
                 <TableCell>{result.GD}</TableCell>
                 <TableCell>{result.points}</TableCell>
+                <TableCell>{result.pointsPerGame}</TableCell>
               </TableRow>
             );
           })}

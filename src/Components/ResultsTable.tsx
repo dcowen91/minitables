@@ -23,6 +23,7 @@ export interface ITableResult {
 
 interface IResultsTableProps {
   results: ITableResult[];
+  selectTeam: (teamId: number) => void;
 }
 
 const useStyles = makeStyles({
@@ -32,6 +33,9 @@ const useStyles = makeStyles({
   },
   nameColumn: {
     minWidth: "250px",
+  },
+  tableRow: {
+    cursor: "pointer",
   },
 });
 
@@ -56,7 +60,12 @@ export const ResultsTable = (props: IResultsTableProps) => {
         <TableBody>
           {props.results.map((result, index) => {
             return (
-              <TableRow key={result.teamId}>
+              <TableRow
+                key={result.teamId}
+                onClick={() => props.selectTeam(result.teamId)}
+                className={classes.tableRow}
+                hover
+              >
                 <TableCell>{index + 1}</TableCell>
                 <TableCell className={classes.nameColumn}>
                   {result.teamName}

@@ -14,18 +14,86 @@ import { FormSection } from "./Components/FormSection";
 import { createBrowserHistory } from "history";
 import { StaticLeagueData } from "./Data/leagueData";
 import { PresetQueryDataMap } from "./Data/constants";
+import {
+  TeamResultsModal,
+  ITeamResults,
+  IMatchResult,
+} from "./Components/TeamResultsModal";
+
+function filterTeamResults(
+  teamId: number,
+  matches: IMatch[],
+  filteredTeamIds: number[]
+): IMatch[] {
+  return matches.filter(
+    (match) =>
+      (match.awayId === teamId && filteredTeamIds.includes(match.homeId)) ||
+      (match.homeId === teamId && filteredTeamIds.includes(match.awayId))
+  );
+}
+
+function buildMatchResult(
+  isHome: boolean,
+  match?: IMatch
+): IMatchResult | undefined {
+  if (!match) {
+    return;
+  }
+
+  const result =
+    match.awayScore === match.homeScore
+      ? "draw"
+      : (match.homeScore > match.awayScore && isHome) ||
+        (match.homeScore < match.awayScore && !isHome)
+      ? "win"
+      : "loss";
+
+  return {
+    result: result,
+    homeScore: match.homeScore,
+    awayScore: match.awayScore,
+  };
+}
+
+function buildSelectedTeamResult(
+  teams: ITeam[],
+  matches: IMatch[],
+  filteredResults: number[],
+  selectedTeamId?: number
+): ITeamResults[] {
+  if (!selectedTeamId) {
+    return [];
+  }
+  const teamResults = filterTeamResults(
+    selectedTeamId,
+    matches,
+    filteredResults
+  );
+
+  const results: ITeamResults[] = filteredResults
+    .filter((teamId) => teamId !== selectedTeamId)
+    .map((teamId) => {
+      const homeMatch = teamResults.find((result) => result.homeId === teamId);
+      const awayMatch = teamResults.find((result) => result.awayId === teamId);
+
+      const result: ITeamResults = {
+        opponentName:
+          teams.find((team) => team.teamId === teamId)?.teamShortName ?? "",
+        homeResult: buildMatchResult(false, homeMatch),
+        awayResult: buildMatchResult(true, awayMatch),
+      };
+      return result;
+    });
+
+  return results;
+}
 
 function calculateResults(
   team: ITeam,
   matches: IMatch[],
   filteredResults: number[]
 ): ITableResult {
-  const teamMatches = matches.filter(
-    (match) =>
-      (match.awayId === team.teamId &&
-        filteredResults.includes(match.homeId)) ||
-      (match.homeId === team.teamId && filteredResults.includes(match.awayId))
-  );
+  const teamMatches = filterTeamResults(team.teamId, matches, filteredResults);
 
   let wins: number, draws: number, losses: number, GD: number, points: number;
   wins = draws = losses = GD = points = 0;
@@ -137,6 +205,7 @@ const App: React.FC = () => {
     visibleResults
   );
   const [presetValue, setPresetValue] = React.useState<PresetQueries>(preset);
+  const [selectedTeamId, selectTeamId] = React.useState<number | undefined>();
 
   // on change, update URL
   React.useEffect(() => {
@@ -184,6 +253,14 @@ const App: React.FC = () => {
     .sort((first, second) => second.points - first.points)
     .filter((result) => filteredVisibleTeams.includes(result.teamId));
 
+  const selectedTeam = teams.find((team) => team.teamId === selectedTeamId);
+  const selectedTeamResults = buildSelectedTeamResult(
+    teams,
+    matches,
+    filteredResults,
+    selectedTeamId
+  );
+
   // TODO add routing/link sharing for custom
   // TODO add "sync" button to apply changes from one chip section to other
   return (
@@ -206,7 +283,12 @@ const App: React.FC = () => {
           setFilteredVisibleTeams={setFilteredVisibleTeams}
           setPresetValue={setPresetValue}
         />
-        <ResultsTable results={tableResults} />
+        <ResultsTable results={tableResults} selectTeam={selectTeamId} />
+        <TeamResultsModal
+          selectedTeamName={selectedTeam?.teamName}
+          teamResults={selectedTeamResults}
+          closeModal={() => selectTeamId(undefined)}
+        />
       </div>
     </ThemeProvider>
   );

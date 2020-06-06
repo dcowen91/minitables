@@ -10,3 +10,4 @@
 - [ ] add info tooltips and change header
 - [ ] responsive/mobile support
 - [ ] add individual team schedule support
+- [ ] redesign filter section

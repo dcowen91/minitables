@@ -22,8 +22,8 @@ const useStyles = makeStyles({
   },
   box: {
     display: "flex",
+    flexWrap: "wrap",
   },
-
   select: {
     minWidth: "200px",
     marginTop: "20px",
@@ -37,6 +37,9 @@ const useStyles = makeStyles({
   },
   infoIcon: {
     fontSize: "14px",
+  },
+  dropdownContainer: {
+    margin: "15px",
   },
 });
 
@@ -56,7 +59,7 @@ export const FormSection = (props: IFormSectionProps) => {
   return (
     <>
       <Box className={classes.box}>
-        <FormControl>
+        <FormControl className={classes.dropdownContainer}>
           <Select
             value={props.presetValue}
             onChange={(evt) =>
@@ -81,8 +84,6 @@ export const FormSection = (props: IFormSectionProps) => {
           </Select>
           <FormHelperText>Presets</FormHelperText>
         </FormControl>
-      </Box>
-      <Box className={classes.box}>
         <Paper className={classes.chipSection}>
           <FormHelperText className={classes.chipHeader}>
             Visible teams <InfoIcon className={classes.infoIcon} />

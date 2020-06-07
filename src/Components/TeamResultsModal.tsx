@@ -11,7 +11,6 @@ import {
   Card,
   Typography,
 } from "@material-ui/core";
-import { IMatch } from "../App.types";
 
 export interface IMatchResult {
   result: "win" | "draw" | "loss";
@@ -34,15 +33,25 @@ export interface ITeamResultsModal {
 const useStyles = makeStyles({
   win: {
     backgroundColor: "#7cb23e",
+    borderLeft: "1px solid rgba(81, 81, 81, 1)",
   },
   loss: {
     backgroundColor: "#b23939",
+    borderLeft: "1px solid rgba(81, 81, 81, 1)",
   },
   draw: {
-    backgroundColor: "#424242",
+    backgroundColor: "#676767",
+    borderLeft: "1px solid rgba(81, 81, 81, 1)",
   },
   empty: {
-    backgroundColor: "#333",
+    backgroundColor: "#343434",
+    borderLeft: "1px solid rgba(81, 81, 81, 1)",
+  },
+  header: {
+    marginBottom: 20,
+  },
+  card: {
+    padding: 15,
   },
 });
 
@@ -67,8 +76,10 @@ export const TeamResultsModal = (props: ITeamResultsModal) => {
       maxWidth={"xs"}
       fullWidth
     >
-      <Card variant={"outlined"}>
-        <Typography>{props.selectedTeamName}'s results</Typography>
+      <Card variant={"elevation"} className={classes.card}>
+        <Typography variant="h4" className={classes.header}>
+          {props.selectedTeamName}'s results
+        </Typography>
         <Table size="small">
           <TableHead>
             <TableRow>
@@ -85,12 +96,12 @@ export const TeamResultsModal = (props: ITeamResultsModal) => {
                   {/** TODO fix this, home and away are backwards */}
                   <TableCell className={getCellClass(result.homeResult)}>
                     {result.homeResult
-                      ? `${result.homeResult.awayScore}:${result.homeResult.homeScore}`
+                      ? `${result.homeResult.homeScore}:${result.homeResult.awayScore}`
                       : "N/A"}
                   </TableCell>
                   <TableCell className={getCellClass(result.awayResult)}>
                     {result.awayResult
-                      ? `${result.awayResult.awayScore}:${result.awayResult.homeScore}`
+                      ? `${result.awayResult.homeScore}:${result.awayResult.awayScore}`
                       : "N/A"}
                   </TableCell>
                 </TableRow>

@@ -31,9 +31,6 @@ const useStyles = makeStyles({
     maxWidth: 800,
     margin: "10px auto",
   },
-  nameColumn: {
-    minWidth: "250px",
-  },
   tableRow: {
     cursor: "pointer",
   },
@@ -48,7 +45,7 @@ export const ResultsTable = (props: IResultsTableProps) => {
         <TableHead>
           <TableRow>
             <TableCell>Position</TableCell>
-            <TableCell className={classes.nameColumn}>Team</TableCell>
+            <TableCell>Team</TableCell>
             <TableCell>Wins</TableCell>
             <TableCell>Draws</TableCell>
             <TableCell>Losses</TableCell>
@@ -67,9 +64,7 @@ export const ResultsTable = (props: IResultsTableProps) => {
                 hover
               >
                 <TableCell>{index + 1}</TableCell>
-                <TableCell className={classes.nameColumn}>
-                  {result.teamName}
-                </TableCell>
+                <TableCell>{result.teamName}</TableCell>
                 <TableCell>{result.wins}</TableCell>
                 <TableCell>{result.draws}</TableCell>
                 <TableCell>{result.losses}</TableCell>

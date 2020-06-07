@@ -73,14 +73,14 @@ function buildSelectedTeamResult(
   const results: ITeamResults[] = filteredResults
     .filter((teamId) => teamId !== selectedTeamId)
     .map((teamId) => {
-      const homeMatch = teamResults.find((result) => result.homeId === teamId);
-      const awayMatch = teamResults.find((result) => result.awayId === teamId);
+      const homeMatch = teamResults.find((result) => result.awayId === teamId);
+      const awayMatch = teamResults.find((result) => result.homeId === teamId);
 
       const result: ITeamResults = {
         opponentName:
-          teams.find((team) => team.teamId === teamId)?.teamShortName ?? "",
-        homeResult: buildMatchResult(false, homeMatch),
-        awayResult: buildMatchResult(true, awayMatch),
+          teams.find((team) => team.teamId === teamId)?.teamName ?? "",
+        homeResult: buildMatchResult(true, homeMatch),
+        awayResult: buildMatchResult(false, awayMatch),
       };
       return result;
     });

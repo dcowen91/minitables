@@ -194,10 +194,8 @@ const App: React.FC = () => {
   const { preset, visibleTeams, visibleResults } = parseUrlState(
     history.location.pathname
   );
-  const [teams, _setTeams] = React.useState<ITeam[]>(StaticLeagueData.teams);
-  const [matches, _setmatches] = React.useState<IMatch[]>(
-    StaticLeagueData.matches
-  );
+  const [teams] = React.useState<ITeam[]>(StaticLeagueData.teams);
+  const [matches] = React.useState<IMatch[]>(StaticLeagueData.matches);
   const [filteredVisibleTeams, setFilteredVisibleTeams] = React.useState<
     number[]
   >(visibleTeams);
@@ -218,6 +216,7 @@ const App: React.FC = () => {
       const path = `/${PresetQueries[presetValue]}/${teamHash}/${resultHash}`;
       history.replace(path);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [presetValue, filteredResults, filteredVisibleTeams]);
 
   // If the PL ever resumes, then this will be needed

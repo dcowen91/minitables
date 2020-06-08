@@ -92,7 +92,6 @@ export const TeamResultsModal = (props: ITeamResultsModal) => {
               return (
                 <TableRow key={result.opponentName}>
                   <TableCell>{result.opponentName}</TableCell>
-                  {/** TODO fix this, home and away are backwards */}
                   <TableCell className={getCellClass(result.homeResult)}>
                     {result.homeResult
                       ? `${result.homeResult.homeScore}:${result.homeResult.awayScore}`

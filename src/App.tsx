@@ -260,7 +260,6 @@ const App: React.FC = () => {
     selectedTeamId
   );
 
-  // TODO add routing/link sharing for custom
   // TODO add "sync" button to apply changes from one chip section to other
   return (
     <ThemeProvider theme={theme}>

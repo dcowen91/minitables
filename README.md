@@ -1,13 +1,13 @@
 ### todo
 
-- [x] add top nav bar
-- [x] add some default selections
-- [x] style selections for chip groups
-- [x] routing
-- [x] add individual team schedule support
-- [ ] analytics?
-- [ ] add link sharing
-- [ ] fix header layout
-- [ ] add info tooltips and change header
-- [ ] responsive/mobile support
-- [ ] redesign filter section
+- [x] Add top nav bar
+- [x] Add some default selections
+- [x] Style selections for chip groups
+- [x] Routing
+- [x] Add individual team schedule support
+- [ ] Add link sharing
+- [ ] Analytics?
+- [ ] Fix header layout
+- [ ] Add info tooltips and change header
+- [ ] Responsive/mobile support
+- [ ] Redesign filter section

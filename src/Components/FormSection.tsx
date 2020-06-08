@@ -8,9 +8,12 @@ import {
   MenuItem,
   FormHelperText,
   FormControl,
+  IconButton,
+  Tooltip,
 } from "@material-ui/core";
 import { ITeam, PresetQueries } from "../App.types";
 import InfoIcon from "@material-ui/icons/Info";
+import ShareIcon from "@material-ui/icons/Share";
 
 const useStyles = makeStyles({
   chipSection: {
@@ -40,6 +43,10 @@ const useStyles = makeStyles({
   },
   dropdownContainer: {
     margin: "15px",
+  },
+  share: {
+    height: 32,
+    width: 32,
   },
 });
 
@@ -146,6 +153,17 @@ export const FormSection = (props: IFormSectionProps) => {
             />
           ))}
         </Paper>
+        <div>
+          <Tooltip title="Share">
+            <IconButton
+              onClick={() =>
+                console.log("TODO copy to clipboard, show feedback")
+              }
+            >
+              <ShareIcon />
+            </IconButton>
+          </Tooltip>
+        </div>
       </Box>
     </>
   );

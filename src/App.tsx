@@ -12,7 +12,7 @@ import { ITableResult, ResultsTable } from "./Components/ResultsTable";
 import { IMatch, ITeam, PresetQueries } from "./App.types";
 import { FormSection } from "./Components/FormSection";
 import { createBrowserHistory } from "history";
-import { StaticLeagueData } from "./Data/leagueData";
+import { useLeagueData } from "./Data/leagueData";
 import { PresetQueryDataMap } from "./Data/constants";
 import {
   TeamResultsModal,
@@ -194,8 +194,8 @@ const App: React.FC = () => {
   const { preset, visibleTeams, visibleResults } = parseUrlState(
     history.location.pathname
   );
-  const [teams] = React.useState<ITeam[]>(StaticLeagueData.teams);
-  const [matches] = React.useState<IMatch[]>(StaticLeagueData.matches);
+  const { teams, matches } = useLeagueData();
+
   const [filteredVisibleTeams, setFilteredVisibleTeams] = React.useState<
     number[]
   >(visibleTeams);
@@ -218,16 +218,6 @@ const App: React.FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [presetValue, filteredResults, filteredVisibleTeams]);
-
-  // If the PL ever resumes, then this will be needed
-  // React.useEffect(() => {
-  //   getLeagueData().then(({ allTeamIds, teams, matches }) => {
-  //     setFilteredResults(allTeamIds);
-  //     setFilteredVisibleTeams(allTeamIds);
-  //     setTeams(teams);
-  //     setmatches(matches);
-  //   });
-  // }, []);
 
   React.useEffect(() => {
     if (presetValue !== PresetQueries.Custom) {

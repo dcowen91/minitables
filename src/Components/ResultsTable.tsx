@@ -46,6 +46,7 @@ export const ResultsTable = (props: IResultsTableProps) => {
           <TableRow>
             <TableCell>Position</TableCell>
             <TableCell>Team</TableCell>
+            <TableCell>Played</TableCell>
             <TableCell>Wins</TableCell>
             <TableCell>Draws</TableCell>
             <TableCell>Losses</TableCell>
@@ -65,6 +66,9 @@ export const ResultsTable = (props: IResultsTableProps) => {
               >
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{result.teamName}</TableCell>
+                <TableCell>
+                  {result.wins + result.draws + result.losses}
+                </TableCell>
                 <TableCell>{result.wins}</TableCell>
                 <TableCell>{result.draws}</TableCell>
                 <TableCell>{result.losses}</TableCell>

@@ -63,6 +63,7 @@ interface IFormSectionProps {
 export const FormSection = (props: IFormSectionProps) => {
   const classes = useStyles();
 
+  // TODO convert chips to multi-select combobox
   return (
     <>
       <Box className={classes.box}>

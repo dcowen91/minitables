@@ -44,14 +44,14 @@ export const ResultsTable = (props: IResultsTableProps) => {
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell>Position</TableCell>
+            <TableCell>Pos</TableCell>
             <TableCell>Team</TableCell>
-            <TableCell>Played</TableCell>
-            <TableCell>Wins</TableCell>
-            <TableCell>Draws</TableCell>
-            <TableCell>Losses</TableCell>
+            <TableCell>Pl</TableCell>
+            <TableCell>W</TableCell>
+            <TableCell>D</TableCell>
+            <TableCell>L</TableCell>
             <TableCell>GD</TableCell>
-            <TableCell>Points</TableCell>
+            <TableCell>PTs</TableCell>
             <TableCell>PPG</TableCell>
           </TableRow>
         </TableHead>

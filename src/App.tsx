@@ -9,28 +9,16 @@ import {
 import { deepPurple, amber } from "@material-ui/core/colors";
 import { NavBar } from "./Components/NavBar";
 import { ITableResult, ResultsTable } from "./Components/ResultsTable";
-import { IMatch, ITeam, PresetQueries } from "./App.types";
+import { IMatch, ITeam, PresetQueries, ResultMap } from "./App.types";
 import { FormSection } from "./Components/FormSection";
 import { createBrowserHistory } from "history";
 import { useLeagueData } from "./Data/leagueData";
-import { PresetQueryDataMap } from "./Data/constants";
 import {
   TeamResultsModal,
   ITeamResults,
   IMatchResult,
 } from "./Components/TeamResultsModal";
-
-function filterTeamResults(
-  teamId: number,
-  matches: IMatch[],
-  filteredTeamIds: number[]
-): IMatch[] {
-  return matches.filter(
-    (match) =>
-      (match.awayId === teamId && filteredTeamIds.includes(match.homeId)) ||
-      (match.homeId === teamId && filteredTeamIds.includes(match.awayId))
-  );
-}
+import { calculateResults, filterTeamResults } from "./Util/Utils";
 
 function buildMatchResult(
   isHome: boolean,
@@ -88,47 +76,6 @@ function buildSelectedTeamResult(
   return results;
 }
 
-function calculateResults(
-  team: ITeam,
-  matches: IMatch[],
-  filteredResults: number[]
-): ITableResult {
-  const teamMatches = filterTeamResults(team.teamId, matches, filteredResults);
-
-  let wins: number, draws: number, losses: number, GD: number, points: number;
-  wins = draws = losses = GD = points = 0;
-
-  teamMatches.forEach((match) => {
-    const isHome = match.homeId === team.teamId;
-    const teamPoints = isHome ? match.homeScore : match.awayScore;
-    const oppPoints = isHome ? match.awayScore : match.homeScore;
-
-    GD += teamPoints - oppPoints;
-
-    if (teamPoints > oppPoints) {
-      wins++;
-    } else if (teamPoints === oppPoints) {
-      draws++;
-    } else {
-      losses++;
-    }
-    points = wins * 3 + draws;
-  });
-
-  const pointsPerGame = Number((points / (wins + losses + draws)).toFixed(1));
-
-  return {
-    teamName: team.teamName,
-    teamId: team.teamId,
-    wins,
-    draws,
-    losses,
-    GD,
-    points,
-    pointsPerGame,
-  };
-}
-
 const useStyles = makeStyles({
   app: {
     display: "flex",
@@ -162,15 +109,16 @@ function convertToHash(teams: number[]): string {
 }
 
 function parseUrlState(
-  pathName: string
+  pathName: string,
+  presetQueryMap: ResultMap
 ): {
   preset: PresetQueries;
   visibleTeams: number[];
   visibleResults: number[];
 } {
   let preset = PresetQueries.Top6;
-  let visibleTeams = PresetQueryDataMap[preset]!.visible;
-  let visibleResults = PresetQueryDataMap[preset]!.results;
+  let visibleTeams = presetQueryMap[preset]!.visible;
+  let visibleResults = presetQueryMap[preset]!.results;
 
   if (pathName !== "/") {
     const parts = pathName.split("/");
@@ -181,20 +129,23 @@ function parseUrlState(
       visibleResults = parseHash(parts[3]);
     } else if (firstPart in PresetQueries) {
       preset = PresetQueries[firstPart as any] as any;
-      visibleTeams = PresetQueryDataMap[preset]!.visible;
-      visibleResults = PresetQueryDataMap[preset]!.results;
+      visibleTeams = presetQueryMap[preset]!.visible;
+      visibleResults = presetQueryMap[preset]!.results;
     }
   }
   return { preset, visibleResults, visibleTeams };
 }
 
+// TODO split up app component
 const App: React.FC = () => {
   const classes = useStyles();
   const history = createBrowserHistory();
+  const { teams, matches, presetQueryMap } = useLeagueData();
+
   const { preset, visibleTeams, visibleResults } = parseUrlState(
-    history.location.pathname
+    history.location.pathname,
+    presetQueryMap
   );
-  const { teams, matches } = useLeagueData();
 
   const [filteredVisibleTeams, setFilteredVisibleTeams] = React.useState<
     number[]
@@ -221,12 +172,12 @@ const App: React.FC = () => {
 
   React.useEffect(() => {
     if (presetValue !== PresetQueries.Custom) {
-      const presetData = PresetQueryDataMap[presetValue];
+      const presetData = presetQueryMap[presetValue];
 
       setFilteredVisibleTeams(presetData!.visible);
       setFilteredResults(presetData!.results);
     }
-  }, [presetValue]);
+  }, [presetValue, presetQueryMap]);
 
   const theme = createMuiTheme({
     palette: {

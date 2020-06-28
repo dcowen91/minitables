@@ -1,7 +1,20 @@
-import { ITeam, IMatch } from "../App.types";
+import {
+  ITeam,
+  IMatch,
+  PresetQueries,
+  IQueryMap,
+  ResultMap,
+} from "../App.types";
 import React from "react";
+import { calculateResults } from "../Util/Utils";
 
 interface ILeagueData {
+  teams: ITeam[];
+  matches: IMatch[];
+  presetQueryMap: ResultMap;
+}
+
+interface IParsedData {
   teams: ITeam[];
   matches: IMatch[];
 }
@@ -33,22 +46,65 @@ function transformMatchResult(
 export function useLeagueData(): ILeagueData {
   const [teams, setTeams] = React.useState<ITeam[]>([]);
   const [matches, setMatches] = React.useState<IMatch[]>([]);
+  const [presetQueryMap, setQueryMap] = React.useState<ResultMap>({
+    [PresetQueries.Top6]: { visible: [], results: [] },
+    [PresetQueries.Big6]: { visible: [], results: [] },
+    [PresetQueries.Bottom6]: { visible: [], results: [] },
+    [PresetQueries.TopHalf]: { visible: [], results: [] },
+    [PresetQueries.BottomHalf]: { visible: [], results: [] },
+    [PresetQueries.TopHalfVsBottom]: { visible: [], results: [] },
+    [PresetQueries.BottomHalfVsTop]: { visible: [], results: [] },
+    [PresetQueries.All]: { visible: [], results: [] },
+  });
 
   React.useEffect(() => {
     getLeagueData().then(({ teams, matches }) => {
       setTeams(teams);
       setMatches(matches);
+
+      const queryMap = buildQueryMap(teams, matches);
+      setQueryMap(queryMap);
     });
   }, []);
 
-  return { teams, matches };
+  return { teams, matches, presetQueryMap };
+}
+
+function buildQueryMap(
+  teams: ITeam[],
+  matches: IMatch[]
+): Partial<Record<PresetQueries, IQueryMap>> {
+  const all = Array.from({ length: 20 }, (v, i) => i); // 0 to 19
+
+  const allTeams = teams
+    .map((team) => calculateResults(team, matches, all))
+    .sort((a, b) => b.points - a.points)
+    .map((result) => result.teamId);
+
+  const top6: number[] = allTeams.slice(0, 6);
+  const tophalf: number[] = allTeams.slice(0, 10);
+  const bottom6: number[] = allTeams.slice(14, 20);
+  const bottomhalf: number[] = allTeams.slice(10, 20);
+
+  const big6 = [0, 5, 9, 10, 11, 16];
+
+  return {
+    [PresetQueries.Top6]: { visible: top6, results: top6 },
+    [PresetQueries.Big6]: { visible: big6, results: big6 },
+    [PresetQueries.Bottom6]: { visible: bottom6, results: bottom6 },
+    [PresetQueries.TopHalf]: { visible: tophalf, results: tophalf },
+    [PresetQueries.BottomHalf]: { visible: bottomhalf, results: bottomhalf },
+    [PresetQueries.TopHalfVsBottom]: { visible: tophalf, results: bottomhalf },
+    [PresetQueries.BottomHalfVsTop]: { visible: bottomhalf, results: tophalf },
+    [PresetQueries.All]: { visible: all, results: all },
+  };
 }
 
 /**
  * fetch league data and parse from wikipedia
  */
-export function getLeagueData(): Promise<ILeagueData> {
-  const url = `https://en.wikipedia.org/w/api.php?action=parse&page=2019–20_Premier_League&prop=text&section=7&format=json&origin=*`;
+export function getLeagueData(): Promise<IParsedData> {
+  const url = `https://en.wikipedia.org/w/api.php?action=parse&page=2019–20_Premier_League&prop=text&section=8&format=json&origin=*`;
   return fetch(url, { mode: "cors" })
     .then((res) => res.json())
     .then((res) => {

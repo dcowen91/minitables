@@ -1,13 +1,8 @@
 ### todo
 
-- [x] Add top nav bar
-- [x] Add some default selections
-- [x] Style selections for chip groups
-- [x] Routing
-- [x] Add individual team schedule support
-- [ ] Add link sharing
-- [ ] Analytics?
-- [ ] Fix header layout
-- [ ] Add info tooltips and change header
-- [ ] Responsive/mobile support
-- [ ] Redesign filter section
+- [ ] Finish link sharing
+- [ ] Add G Analytics?
+- [ ] Change header text to be tooltip (question mark icon)
+- [ ] Add info tooltips for chips
+- [ ] Fix Responsive/mobile support
+- [ ] Redesign filter section?

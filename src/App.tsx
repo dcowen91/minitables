@@ -208,10 +208,9 @@ const App: React.FC = () => {
       <NavBar />
       <div className={classes.app}>
         <Typography className={classes.intro}>
-          Minitables lets you compare small league results for the Premier
-          League. Select an item from the preset to look at results only between
-          the top 6 teams, or the traditional big 6. Or click on the chips to
-          create your own mini league table!
+          Minitables lets you compare results by creating mini leagues within
+          the Premier League. Choose one of the predefined mini leagues, or
+          create your own!
         </Typography>
         <FormSection
           teams={teams}

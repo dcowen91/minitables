@@ -10,7 +10,9 @@ import {
   FormControl,
   IconButton,
   Tooltip,
+  Snackbar,
 } from "@material-ui/core";
+import MuiAlert from "@material-ui/lab/Alert";
 import { ITeam, PresetQueries } from "../App.types";
 import InfoIcon from "@material-ui/icons/Info";
 import ShareIcon from "@material-ui/icons/Share";
@@ -62,6 +64,7 @@ interface IFormSectionProps {
 
 export const FormSection = (props: IFormSectionProps) => {
   const classes = useStyles();
+  const [isCopied, setIsCopied] = React.useState(false);
 
   // TODO convert chips to multi-select combobox
   return (
@@ -82,10 +85,10 @@ export const FormSection = (props: IFormSectionProps) => {
             <MenuItem value={PresetQueries.TopHalf}>Top half</MenuItem>
             <MenuItem value={PresetQueries.BottomHalf}>Bottom half</MenuItem>
             <MenuItem value={PresetQueries.TopHalfVsBottom}>
-              Top half vs the bottom half
+              Top half vs bottom half
             </MenuItem>
             <MenuItem value={PresetQueries.BottomHalfVsTop}>
-              Bottom half vs the top half
+              Bottom half vs top half
             </MenuItem>
             <MenuItem value={PresetQueries.All}>All results</MenuItem>
             <MenuItem value={PresetQueries.Custom}>Custom</MenuItem>
@@ -157,15 +160,28 @@ export const FormSection = (props: IFormSectionProps) => {
         <div>
           <Tooltip title="Share">
             <IconButton
-              onClick={() =>
-                console.log("TODO copy to clipboard, show feedback")
-              }
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.href).then(
+                  () => setIsCopied(true),
+                  () => alert("failed")
+                );
+              }}
             >
               <ShareIcon />
             </IconButton>
           </Tooltip>
         </div>
       </Box>
+      <Snackbar
+        open={isCopied}
+        onClose={() => setIsCopied(false)}
+        autoHideDuration={4000}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <MuiAlert elevation={6} variant="filled" severity="info">
+          Copied to clipboard
+        </MuiAlert>
+      </Snackbar>
     </>
   );
 };

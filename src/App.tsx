@@ -6,7 +6,7 @@ import {
   createMuiTheme,
   Typography,
 } from "@material-ui/core";
-import { deepPurple, amber } from "@material-ui/core/colors";
+import { blue, amber } from "@material-ui/core/colors";
 import { NavBar } from "./Components/NavBar";
 import { ITableResult, ResultsTable } from "./Components/ResultsTable";
 import { IMatch, ITeam, PresetQueries, ResultMap } from "./App.types";
@@ -182,7 +182,7 @@ const App: React.FC = () => {
   const theme = createMuiTheme({
     palette: {
       type: "dark",
-      primary: deepPurple, // TODO make better theme colors
+      primary: blue,
       secondary: amber,
     },
   });

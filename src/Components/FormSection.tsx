@@ -97,7 +97,13 @@ export const FormSection = (props: IFormSectionProps) => {
         </FormControl>
         <Paper className={classes.chipSection}>
           <FormHelperText className={classes.chipHeader}>
-            Visible teams <InfoIcon className={classes.infoIcon} />
+            Visible teams
+            <Tooltip
+              placement="top"
+              title="Select the teams that will be visible in the table"
+            >
+              <InfoIcon className={classes.infoIcon} />
+            </Tooltip>
           </FormHelperText>
           {props.teams.map((team: ITeam) => (
             <Chip
@@ -128,7 +134,13 @@ export const FormSection = (props: IFormSectionProps) => {
         </Paper>
         <Paper className={classes.chipSection}>
           <FormHelperText className={classes.chipHeader}>
-            Included opponents <InfoIcon className={classes.infoIcon} />
+            Included opponents
+            <Tooltip
+              placement="top"
+              title="Select the teams that you want to see the results against for the visible teams in the table."
+            >
+              <InfoIcon className={classes.infoIcon} />
+            </Tooltip>
           </FormHelperText>
           {props.teams.map((team) => (
             <Chip
@@ -175,7 +187,7 @@ export const FormSection = (props: IFormSectionProps) => {
       <Snackbar
         open={isCopied}
         onClose={() => setIsCopied(false)}
-        autoHideDuration={4000}
+        autoHideDuration={2000}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <MuiAlert elevation={6} variant="filled" severity="info">

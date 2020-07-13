@@ -1,8 +1,5 @@
-### todo
+[minitables](https://minitables.now.sh)
 
-- [ ] Finish link sharing
-- [ ] Add G Analytics?
-- [ ] Change header text to be tooltip (question mark icon)
-- [ ] Add info tooltips for chips
-- [ ] Fix Responsive/mobile support
-- [ ] Redesign filter section?
+### About
+
+A simple web app that lets you build your own mini league tables for the Premier League. Built on the wikipedia API to get data, then rendered with React.
